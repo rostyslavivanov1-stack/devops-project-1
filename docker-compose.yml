@@ -1,0 +1,33 @@
+services: 
+
+  app: 
+    build: . 
+    image: fastapi-app
+    container_name: fastapi-app-container 
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/app/data 
+    networks:
+      - app-network 
+
+  db-gui: 
+    image: coleifer/sqlite-web:latest 
+    container_name: sqlite-gui-container
+    ports:
+      - "127.0.0.1:8080:8000"
+    volumes:
+      - sqlite_data:/data 
+    command: sqlite_web -H 0.0.0.0 -p 8000 /data/app.db 
+    networks:
+      - app-network
+    depends_on:
+      - app 
+
+networks: 
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlite_data:
+    name: sqlite_data 
